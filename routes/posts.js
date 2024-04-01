@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const { Post } = require('../models');
+const asyncHandler = require('../utils/async-handler');
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.get('/', async (req, res, next) => {
     res.render('post/list', {posts});
 });
 
-router.get('/:shortId', async(req, res, next) => {
+router.get('/:shortId', asyncHandler(async(req, res, next) => {
     const { shortId } = req.params;
     const post = await Post.findOne({
         shortId,
@@ -25,50 +26,41 @@ router.get('/:shortId', async(req, res, next) => {
     }
 
     res.render('post/view', {post});
-});
+}));
 
-router.post('/', async(req, res, next) => {
+router.post('/', asyncHandler(async(req, res, next) => {
     const {title, content} = req.body;
-
-    try {
-        if(!title || !content) {
-            throw new Error('제목과 내용을 입력해 주세요.');
-        }
+    if(!title || !content) {
+        throw new Error('제목과 내용을 입력해 주세요.');
+     }
         
-        const post = await Post.create({
-            title,
-            content,
-        });
-        res.redirect(`/posts/${post.shortId}`);
-    } catch (err) {
-        next(err);
-    }
-});
+     const post = await Post.create({
+         title,
+         content,
+    });
+     res.redirect(`/posts/${post.shortId}`);
+}));
 
 router.post('/:shorId', async(req, res, next) => {
     const {shortId} = req.params;
     const {title, content} = req.body;
 
-    try {
-        if (!title || !content) {
-            throw new Error('제목과 내용을 입력해 주세요');
-        }
-        
-        await Post.updateOne({shortId}, {
-            title,
-            content,
-        });
-        res.redirect(`/posts/${shortId}`);
-    } catch(err) {
-        next(err);
+    if (!title || !content) {
+        throw new Error('제목과 내용을 입력해 주세요');
     }
+    
+    await Post.updateOne({shortId}, {
+        title,
+        content,
+    });
+    res.redirect(`/posts/${shortId}`);
 });
 
-router.delete('/:shortId', async (req, res, next) => {
+router.delete('/:shortId', asyncHandler(async (req, res, next) => {
     const { shortId } = req.params;
     
     await Post.deleteOne({shortId});
     res.send('OK');
-});
+}));
 
 module.exports = router;
