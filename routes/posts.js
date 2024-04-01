@@ -3,4 +3,8 @@ const { Post } = require('../models');
 
 const router = Router();
 
-const 
+router.get('/', async (req, res, next) => {
+    if (req.query.write) {
+        res.render('post/edit');
+    }
+})
