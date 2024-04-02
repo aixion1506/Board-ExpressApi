@@ -9,9 +9,21 @@ router.get('/', async (req, res, next) => {
         res.render('post/edit');
         return;
     }
-    const posts = await Post.find({});
+    
+    const page = Number(req.query.page || 1);
+    const perPage = Number(req.query.perpage || 10);
 
-    res.render('post/list', {posts});
+    const [total, posts] = await Promise.all([
+      Post.countDocuments({}),
+      Post.find({})
+        .sort({ createdAt: -1 })
+        .skip(perPage * (page - 1))
+        .limit(perPage),
+    ]);
+
+    const totalPage = Math.ceil(total / perPage);
+    
+    res.render('post/list', { posts, page, perPage, totalPage });
 });
 
 router.get('/:shortId', asyncHandler(async(req, res, next) => {
