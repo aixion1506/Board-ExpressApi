@@ -9,6 +9,9 @@ const cookieParser = require('cookie-parser');
 const indexRouter = require('./routes/index');
 const postsRouter = require('./routes/posts');
 
+const loginRequired = require('./middlewares/login-required');
+
+require('./passport')();
 
 mongoose.connect('mongodb://localhost:27017/simple-board');
 
@@ -30,9 +33,24 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser);
 app.use(express.static(path.join(__dirname, 'public')));
 
+// express-session 세션 관리
+app.use(
+  session({
+    secret: 'elice',
+    resave: false,
+    saveUninitialized: true,
+  }),
+);
+
+// passport 초기화 및 세션 사용
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 app.use('/', indexRouter);
-app.use('/posts', postsRouter);
+app.use('/posts', loginRequired, postsRouter);
+app.use('/auth', authRouter);
+
 
 app.use((req, res, next) => {
   next(createError(404));
