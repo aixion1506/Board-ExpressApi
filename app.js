@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 
 const indexRouter = require('./routes/index');
 const postsRouter = require('./routes/posts');
+const authRouter = require('./routes/auth');
 
 const loginRequired = require('./middlewares/login-required');
 
