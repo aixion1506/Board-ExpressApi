@@ -1,10 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const session = require('express-session');
+const passport = require('passport');
 const path = require('path');
 const dayjs = require('dayjs');
 const logger = require('morgan');
 const createError = require('http-errors');
 const cookieParser = require('cookie-parser');
+const MongoStore = require('connect-mongo');
 
 const indexRouter = require('./routes/index');
 const postsRouter = require('./routes/posts');
@@ -40,6 +43,9 @@ app.use(
     secret: 'elice',
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: 'mongodb://localhost:27017/simple-board',
+    }),
   }),
 );
 
